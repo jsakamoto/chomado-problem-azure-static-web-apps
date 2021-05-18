@@ -1,0 +1,39 @@
+﻿@using Microsoft.Extensions.Logging
+@inject HttpClient _Http
+@inject ILogger<FooterComponent> _Logger
+
+<footer>
+    Powered by <a href="https://blazor.net/" target="_blank">Blazor</a>,
+    <a href="https://skclusive.github.io/Skclusive.Material.Docs/" target="_blank">Skclusive-UI</a> |
+    Source code is <a href="https://github.com/jsakamoto/chomado-problem-azure-static-web-apps" target="_blank">here</a>.(GNU GPLv2)
+
+    @if (Contributors != null)
+    {
+        <text>| Contributors are</text>
+        @foreach (var contributor in Contributors)
+        {
+            <span>
+                <a href="@contributor.html_url" target="_blank" class="contributor">
+                    <img src="@contributor.avatar_url" title="@contributor.login" class="avatar" />
+                </a>
+            </span>
+        }
+    }
+</footer>
+
+@functions{
+    Contributor[] Contributors = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            const string contributorsUrl = "https://api.github.com/repos/jsakamoto/chomado-problem-azure-static-web-apps/contributors";
+            this.Contributors = await _Http.GetFromJsonAsync<Contributor[]>(contributorsUrl);
+        }
+        catch (Exception e)
+        {
+            _Logger.LogError(e, e.ToString());
+        }
+    }
+}

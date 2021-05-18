@@ -1,0 +1,89 @@
+﻿@inject HttpClient Http
+<FormControl Component="div" Class="answer-form">
+    <table>
+        <tr>
+            <th></th>
+            @foreach (var option in this.Options)
+            {
+                <th>A@(option)</th>
+            }
+        </tr>
+        @foreach (var answer in this.Answers)
+        {
+            var name = $"Q{answer.Q}";
+            <RadioGroup Name="name" Value="@($"{answer.Value}")" OnChange="@(args=> { answer.Value = int.Parse(args.Value.ToString()); })" Component="tr" Style="display:table-row;">
+                <td>@(name).</td>
+                @foreach (var option in this.Options)
+                {
+                    <td>
+                        <Radio Value="@(option.ToString())" Color="Color.Primary" />
+                    </td>
+                }
+            </RadioGroup>
+        }
+    </table>
+
+    <div>
+        <Button OnClick="SendAnswers" Disabled="!Filled" Variant="ButtonVariant.Contained" Color="Color.Primary" Size="Size.Large">
+            <EndIcon>
+                <SendIcon />
+            </EndIcon>
+            <ChildContent>
+                Send Answer
+            </ChildContent>
+        </Button>
+    </div>
+
+</FormControl>
+
+@if (CountOfTrial > 0)
+{
+    <div id="status-pane">
+        @if (NumOfCorrect == Answers.Length)
+        {
+            <div id="congratulation-msg">
+                Congratulation!
+            </div>
+        }
+        <div>
+            <span>@NumOfCorrect</span> answers are correct.
+        </div>
+        <div>
+            You tried @CountOfTrial time(s).
+        </div>
+    </div>
+}
+
+@code
+{
+    int[] Options = new[] { 1, 2, 3, 4 };
+
+    Answer[] Answers = Enumerable.Range(1, 10).Select(n => new Answer { Q = n }).ToArray();
+
+    int NumOfCorrect = 0;
+
+    int CountOfTrial = 0;
+
+    bool Filled => this.Answers.All(a => a.Value != null);
+
+    [Parameter]
+    public Action<bool> OnSendingStatusChanged { get; set; }
+
+    async Task SendAnswers()
+    {
+        var answersValues = this.Answers.Select(a => a.Value);
+
+        this.OnSendingStatusChanged?.Invoke(true);
+        try
+        {
+            var apiUrl = "api/answer";
+            var response = await this.Http.PostAsJsonAsync(apiUrl, answersValues);
+            this.NumOfCorrect = await response.Content.ReadFromJsonAsync<int>();
+            this.CountOfTrial++;
+        }
+        finally
+        {
+            this.OnSendingStatusChanged?.Invoke(false);
+        }
+    }
+}
