@@ -15,9 +15,14 @@ namespace ChomadoProblemForm
             builder.RootComponents.Add<App>("#app");
 
             builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.Configuration["API_Prefix"] ?? builder.HostEnvironment.BaseAddress) });
-            builder.Services.TryAddMaterialServices(new MaterialConfigBuilder().Build());
+            ConfigureServices(builder.Services);
 
             await builder.Build().RunAsync();
+        }
+
+        private static void ConfigureServices(IServiceCollection services)
+        {
+            services.TryAddMaterialServices(new MaterialConfigBuilder().Build());
         }
     }
 }
