@@ -6,6 +6,8 @@
 
 タイトルにあるとおり、静的 Web コンテンツ (Blazor WebAssembly) と API サーバーとをセットで、[Azure Static Web Apps](https://azure.microsoft.com/services/app-service/static/) 上に配置してみました。
 
+- 配置された URL - https://jolly-wave-05ade6c00.azurestaticapps.net/
+
 ## "ちょまど問題" って?
 
 togetter にまとめがあります。
