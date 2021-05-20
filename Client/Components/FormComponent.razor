@@ -69,6 +69,13 @@
     [Parameter]
     public Action<bool> OnSendingStatusChanged { get; set; }
 
+    int Seed;
+
+    protected override void OnInitialized()
+    {
+        this.Seed = new Random().Next();
+    }
+
     async Task SendAnswers()
     {
         var answersValues = this.Answers.Select(a => a.Value);
@@ -76,7 +83,7 @@
         this.OnSendingStatusChanged?.Invoke(true);
         try
         {
-            var apiUrl = "api/answer";
+            var apiUrl = $"api/answer?seed={this.Seed}";
             var response = await this.Http.PostAsJsonAsync(apiUrl, answersValues);
             this.NumOfCorrect = await response.Content.ReadFromJsonAsync<int>();
             this.CountOfTrial++;
