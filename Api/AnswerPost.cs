@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -17,10 +18,17 @@ namespace Api
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "answer")] HttpRequest req,
             ILogger log)
         {
+            var seedString = req.Query.TryGetValue("seed", out var values) ? values.First() : "1";
+            var seed = int.TryParse(seedString, out var n) ? n : 1;
+
+            var random = new Random(seed);
+            const int numOfOptions = 4;
+            const int numOfQuestions = 10;
+            var correct = Enumerable.Range(0, numOfQuestions).Select(_ => random.Next(0, numOfOptions) + 1).ToArray();
+
             var body = await new StreamReader(req.Body).ReadToEndAsync();
             var answers = JsonSerializer.Deserialize<int[]>(body);
 
-            var correct = new[] { 1, 1, 4, 3, 3, 4, 2, 1, 3, 2 };
             var correctCount = correct
                 .Zip(answers, (c, a) => c == a)
                 .Count(right => right);
